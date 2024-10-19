@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"sdmm/internal/app/prefs"
 	"sdmm/internal/app/render"
@@ -23,6 +24,7 @@ import (
 
 	"github.com/SpaiR/imgui-go"
 	"github.com/rs/zerolog/log"
+	"github.com/hugolgst/rich-go/client"
 )
 
 /*
@@ -152,6 +154,52 @@ func (a *app) UpdateTitle() {
 
 	a.masterWindow.Handle().SetTitle(title)
 	log.Print("title updated:", title)
+
+	a.UpdateRichPresence()
+}
+
+func (a *app) UpdateRichPresence() {
+	envTitle := a.environmentName()
+	wsTitle := a.layout.WsArea.WorkspaceTitle()
+
+	if a.startTime.IsZero() {
+		a.startTime = time.Now()
+	}
+
+	richPresence := client.Login("1297098340516761610")
+	if richPresence != nil {
+		panic(richPresence)
+	}
+
+	state := ""
+	if strings.HasSuffix(wsTitle, ".dmm") {
+        state = "Mapping: " + wsTitle
+    } else {
+        state = "Idling"
+    }
+
+	details := ""
+	if envTitle != "" {
+		details = "Workspace: " + envTitle
+	} else {
+		details = "Main Menu"
+	}
+
+	richPresence = client.SetActivity(client.Activity{
+		State:      state,
+		Details:    details,
+		LargeImage: "strongdmm-logo",
+		LargeText:  env.Version,
+		Timestamps: &client.Timestamps{
+			Start: &a.startTime,
+		},
+	})
+
+	if richPresence != nil {
+		panic(richPresence)
+	}
+
+	log.Print("Rich Presence updated")
 }
 
 // UpdateScale updates scale of the application.

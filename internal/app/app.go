@@ -98,6 +98,7 @@ type app struct {
 
 	menu   *menu.Menu
 	layout *layout.Layout
+	startTime time.Time
 }
 
 func (a *app) initialize() {
